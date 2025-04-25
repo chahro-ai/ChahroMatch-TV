@@ -1,0 +1,953 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ChahroMatch.TV</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <style>
+        /* --- الأنماط الأساسية لصفحة ChahroMatch.TV --- */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            /* تطبيق الخط الأساسي هنا */
+            font-family: 'Cairo', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        body {
+            background: linear-gradient(135deg, #1db954, #169c45);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            position: relative;
+            transition: background 0.5s ease;
+            overflow-x: hidden;
+        }
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background-color: rgba(26, 166, 74, 0.9);
+            backdrop-filter: blur(10px);
+            padding: 15px 20px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            z-index: 100;
+            text-align: right;
+            transition: all 0.3s ease;
+        }
+        .header:hover {
+            background-color: rgba(26, 166, 74, 1);
+        }
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: white;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            position: relative;
+            display: inline-block;
+        }
+        .logo::after {
+            content: '';
+            position: absolute;
+            bottom: -3px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background-color: white;
+            transition: width 0.3s ease;
+        }
+        .logo:hover::after {
+            width: 100%;
+        }
+        .main-content {
+            width: 100%;
+            max-width: 100%;
+            text-align: center;
+            padding: 20px;
+            margin-top: 70px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        .title {
+            font-size: 3rem;
+            margin-bottom: 10px;
+            font-weight: bold;
+            text-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            animation: mainFadeIn 1s ease;
+        }
+        .subtitle {
+            font-size: 1.2rem;
+            margin-bottom: 30px;
+            opacity: 0.9;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            animation: mainFadeIn 1.2s ease;
+        }
+        .login-container {
+            background-color: rgba(255, 255, 255, 0.15);
+            padding: 30px;
+            border-radius: 15px;
+            width: 100%;
+            max-width: 450px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            transform: translateY(0);
+            transition: all 0.4s ease;
+            animation: slideUp 0.8s ease;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            z-index: 10;
+        }
+        .login-container:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+        }
+        .form-group {
+            margin-bottom: 20px;
+            text-align: right;
+        }
+        .code-container {
+            position: relative;
+            width: 100%;
+            margin-bottom: 20px;
+        }
+        #codeDisplay {
+            width: 100%;
+            padding: 15px;
+            background-color: rgba(255,255,255,0.2);
+            border-radius: 10px;
+            font-size: 1.2rem;
+            min-height: 2.5rem;
+            word-break: break-all;
+            box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        #codeDisplay:hover {
+            background-color: rgba(255,255,255,0.25);
+        }
+        .copy-btn {
+            position: absolute;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(17, 134, 58, 0.8);
+            border: none;
+            border-radius: 6px;
+            color: white;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            opacity: 0.8;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+        .copy-btn:hover {
+            opacity: 1;
+            background: rgba(17, 134, 58, 1);
+            transform: translateY(-50%) scale(1.05);
+        }
+        .copy-btn:active {
+            transform: translateY(-50%) scale(0.95);
+        }
+        .copy-icon {
+            width: 18px;
+            height: 18px;
+            fill: white;
+        }
+        .tooltip {
+            position: absolute;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 0.8rem;
+            bottom: -30px;
+            left: 50%;
+            transform: translateX(-50%);
+            opacity: 0;
+            transition: opacity 0.3s;
+            pointer-events: none;
+            white-space: nowrap; /* منع النص من الالتفاف */
+        }
+        .copy-btn:hover .tooltip {
+            opacity: 1;
+        }
+        .form-input, .action-button { /* استخدام فئة مشتركة للأزرار */
+            width: 100%;
+            padding: 12px 15px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            font-family: inherit; /* استخدام نفس خط الصفحة */
+            font-weight: bold;
+            cursor: pointer;
+            margin-bottom: 15px; /* توحيد الهامش السفلي */
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+        .form-input {
+            background-color: rgba(255, 255, 255, 0.2);
+            color: white;
+            text-align: center;
+            direction: rtl;
+            box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            cursor: text; /* تغيير المؤشر لحقل الإدخال */
+        }
+        .form-input::placeholder {
+            color: rgba(255, 255, 255, 0.7);
+        }
+        .form-input:focus {
+            outline: none;
+            background-color: rgba(255, 255, 255, 0.3);
+            box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.2), 0 0 0 3px rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        /* تدرجات الأزرار */
+        .login-btn {
+             background: linear-gradient(to right, #11863a, #0d7231);
+             color: white;
+        }
+        .play-game-btn {
+             background: linear-gradient(to right, #0077cc, #005fa3); /* تدرج أزرق لزر اللعبة */
+             color: white;
+        }
+
+        /* تأثير المرور اللامع (لجميع الأزرار) */
+        .action-button:before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: all 0.6s ease;
+        }
+        .action-button:hover:before {
+            left: 100%;
+        }
+        .action-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
+        }
+        .action-button:active {
+            transform: translateY(1px);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+        /* تخصيص تأثير hover لكل زر */
+        .login-btn:hover { background: linear-gradient(to right, #0a6e2c, #095324); }
+        .play-game-btn:hover { background: linear-gradient(to right, #005fa3, #004c82); }
+
+        #errorMsg {
+            color: #ffcccc;
+            min-height: 1.2rem;
+            font-size: 0.9rem;
+            text-align: center;
+            transition: all 0.3s ease;
+            text-shadow: 0 0 5px rgba(255, 0, 0, 0.5);
+        }
+        #copyNotification {
+            position: fixed;
+            top: 80px; /* تعديل الموضع ليكون تحت الهيدر */
+            left: 50%;
+            transform: translateX(-50%) translateY(-150px); /* زيادة المسافة ليبدأ من أعلى */
+            background-color: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-size: 0.9rem;
+            transition: transform 0.4s ease;
+            z-index: 2000; /* فوق المودال */
+        }
+        #copyNotification.show {
+            transform: translateX(-50%) translateY(0);
+        }
+
+        /* --- أنماط القلب ثلاثي الأبعاد (بدون تغيير) --- */
+        .heart-container {
+            position: fixed;
+            left: 50px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 100px;
+            height: 100px;
+            z-index: 5;
+            perspective: 1000px;
+            animation: heartFloat 4s ease-in-out infinite;
+        }
+        .heart {
+            position: relative;
+            width: 100px;
+            height: 90px;
+            transform-style: preserve-3d;
+            animation: heartBeat 2s ease-in-out infinite, heartRotate 15s linear infinite;
+        }
+        .heart:before,
+        .heart:after {
+            position: absolute;
+            content: "";
+            left: 50px;
+            top: 0;
+            width: 50px;
+            height: 80px;
+            background: linear-gradient(135deg, #00ff7f, #00a651);
+            border-radius: 50px 50px 0 0;
+            transform: rotate(-45deg);
+            transform-origin: 0 100%;
+            box-shadow:
+                0 0 20px #00ff7f,
+                0 0 40px rgba(0, 255, 127, 0.5),
+                0 0 60px rgba(0, 255, 127, 0.3),
+                0 0 80px rgba(0, 255, 127, 0.1);
+        }
+        .heart:after {
+            left: 0;
+            transform: rotate(45deg);
+            transform-origin: 100% 100%;
+        }
+        .liquid {
+            position: absolute;
+            bottom: -10px;
+            left: 40px;
+            width: 20px;
+            height: 20px;
+            background: #00ff7f;
+            border-radius: 50%;
+            box-shadow:
+                0 0 10px #00ff7f,
+                0 0 20px rgba(0, 255, 127, 0.5);
+            animation: dropLiquid 3s linear infinite;
+            opacity: 0;
+        }
+        .liquid:nth-child(2) { animation-delay: 1s; left: 30px; }
+        .liquid:nth-child(3) { animation-delay: 2s; left: 50px; }
+        .heart-glow {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            filter: blur(20px);
+            background: rgba(0, 255, 127, 0.2);
+            animation: pulse 4s infinite;
+        }
+
+        /* --- Keyframes الأساسية (بدون تغيير) --- */
+        @keyframes heartBeat { /*...*/ }
+        @keyframes heartRotate { /*...*/ }
+        @keyframes heartFloat { /*...*/ }
+        @keyframes dropLiquid { /*...*/ }
+        @keyframes pulse { /*...*/ }
+        @keyframes mainFadeIn { /* إعادة تسمية لتجنب التعارض */
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes slideUp { /*...*/ }
+
+        /* --- أنماط النافذة المنبثقة (Modal) للعبة --- */
+        .modal {
+            display: none; /* مخفية بشكل افتراضي */
+            position: fixed;
+            z-index: 1500; /* فوق القلب وتحت إشعار النسخ */
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto; /* إضافة تمرير إذا كان المحتوى كبيرًا */
+            background-color: rgba(0, 0, 0, 0.6); /* خلفية شبه شفافة */
+            backdrop-filter: blur(5px); /* تأثير ضبابي للخلفية */
+            animation: modalFadeIn 0.4s ease;
+        }
+
+        .modal-content {
+            background: linear-gradient(145deg, #e8f1f5, #ffffff); /* خلفية اللعبة */
+            margin: 8% auto; /* توسيط عمودي وتقليل الهامش العلوي */
+            padding: 30px;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 480px; /* عرض أقصى للعبة */
+            position: relative;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+            animation: modalSlideIn 0.5s ease-out;
+        }
+
+        .close-modal-btn {
+            position: absolute;
+            top: 10px;
+            left: 15px; /* تغيير لليسار في RTL */
+            color: #aaa;
+            font-size: 28px;
+            font-weight: bold;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 0 5px;
+            line-height: 1;
+            transition: color 0.2s ease;
+        }
+        .close-modal-btn:hover,
+        .close-modal-btn:focus {
+            color: #ff4444; /* لون أحمر عند المرور */
+            text-decoration: none;
+            outline: none;
+        }
+
+        /* --- أنماط اللعبة X O (المدمجة والمعدلة) --- */
+        /* متغيرات CSS الخاصة باللعبة */
+        .modal-content { /* تطبيق المتغيرات على محتوى المودال */
+            --cell-size: 90px;
+            --board-gap: 6px;
+            --primary-color: #0077cc;
+            --secondary-color: #ff4444;
+            --board-bg: #dceefc; /* خلفية لوحة اللعبة */
+            --cell-bg: #ffffff;
+            --cell-hover-bg: #e9f5ff;
+            --border-color: #c0d9ec;
+            --shadow-light: rgba(0, 119, 204, 0.2);
+            --shadow-dark: rgba(50, 50, 93, 0.15);
+            --text-color: #333; /* لون النص داخل اللعبة */
+            --winner-bg: linear-gradient(45deg, #aaffaa, #d4ffaa);
+            --game-font: 'Cairo', sans-serif; /* استخدام نفس الخط */
+        }
+
+        /* تطبيق الخط على عناصر اللعبة */
+        #gameModal h1, #gameModal #status-message, #gameModal #restart-button {
+             font-family: var(--game-font);
+             color: var(--text-color); /* استخدام لون النص الخاص باللعبة */
+        }
+
+        #gameModal h1 {
+            color: var(--primary-color);
+            font-weight: 700;
+            margin-bottom: 15px;
+            font-size: 1.8rem; /* تصغير حجم عنوان اللعبة */
+             text-align: center; /* توسيط عنوان اللعبة */
+             animation: none; /* إزالة أنيميشن العنوان الأصلي */
+        }
+
+        #gameModal #board { /* تعديل المحدد ليشمل المودال فقط */
+            display: grid;
+            grid-template-columns: repeat(3, var(--cell-size));
+            grid-template-rows: repeat(3, var(--cell-size));
+            grid-gap: var(--board-gap);
+            margin: 20px auto; /* توسيط اللوحة */
+            background-color: var(--board-bg);
+            padding: var(--board-gap);
+            border-radius: 10px;
+            box-shadow: 0 8px 25px var(--shadow-dark), 0 5px 15px var(--shadow-light);
+            position: relative;
+            width: fit-content; /* جعل عرض اللوحة يتناسب مع المحتوى */
+            /* إزالة أنيميشن الظهور لأنه سيظهر مع المودال */
+        }
+
+        #gameModal .cell {
+            width: var(--cell-size);
+            height: var(--cell-size);
+            border: none;
+            border-radius: 8px;
+            font-size: calc(var(--cell-size) * 0.6);
+            font-weight: 700;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            background-color: var(--cell-bg);
+            box-shadow: 0 2px 5px var(--shadow-dark);
+            transition: transform 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+                        background-color 0.2s ease,
+                        box-shadow 0.2s ease;
+            position: relative;
+             opacity: 1; /* يجب أن تكون ظاهرة */
+             animation: none; /* إزالة أنيميشن الظهور الفردي */
+        }
+
+        #gameModal .cell:hover {
+            transform: scale(1.08);
+            background-color: var(--cell-hover-bg);
+            box-shadow: 0 6px 15px var(--shadow-light);
+            z-index: 10;
+        }
+
+        #gameModal .cell .symbol-x { color: var(--primary-color); }
+        #gameModal .cell .symbol-o { color: var(--secondary-color); }
+
+        #gameModal .cell span {
+            display: inline-block;
+            animation: symbolAppear 0.4s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+        }
+
+        #gameModal .cell.winner {
+             background: var(--winner-bg);
+             animation: winnerPulse 0.8s infinite alternate;
+             box-shadow: 0 0 20px 5px #aaffaa;
+             z-index: 5;
+        }
+        #gameModal .cell.winner span { color: #333; }
+
+        #gameModal #status-message {
+            font-size: 1.3em; /* تصغير حجم رسالة الحالة قليلاً */
+            margin-top: 15px;
+            min-height: 1.5em;
+            color: var(--text-color);
+            font-weight: 700;
+            transition: color 0.3s ease;
+            text-align: center; /* توسيط */
+        }
+        #gameModal #status-message.announce { /* نفس التنسيق */
+            animation: statusAnnounce 0.6s ease-out;
+            color: #28a745;
+        }
+         #gameModal #status-message.announce.tie { color: #ffae42; }
+         #gameModal #status-message.announce.lose { color: var(--secondary-color); }
+
+
+        #gameModal #restart-button {
+            margin: 20px auto 0 auto; /* توسيط وتقليل الهامش العلوي */
+            display: block; /* ضروري للتوسيط مع margin auto */
+            padding: 10px 25px; /* تصغير الحشو قليلاً */
+            font-size: 1em;
+            font-family: var(--game-font);
+            font-weight: 700;
+            cursor: pointer;
+            background-image: linear-gradient(45deg, #ffae42, #ff8c00); /* تدرج برتقالي */
+            color: white;
+            border: none;
+            border-radius: 25px;
+            transition: transform 0.15s ease, box-shadow 0.2s ease;
+            box-shadow: 0 4px 15px rgba(255, 140, 0, 0.4);
+        }
+         #gameModal #restart-button:hover {
+             transform: translateY(-2px);
+             box-shadow: 0 6px 20px rgba(255, 140, 0, 0.6);
+         }
+         #gameModal #restart-button:active {
+             transform: translateY(1px);
+             box-shadow: 0 2px 10px rgba(255, 140, 0, 0.4);
+         }
+
+        /* تنسيق Canvas للـ Confetti (داخل المودال) */
+        #gameModal #confetti-canvas {
+            position: absolute; /* نسبة إلى modal-content */
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 100;
+             border-radius: 15px; /* لمطابقة حواف المودال */
+             overflow: hidden; /* ضمان بقاء القصاصات داخل المودال */
+        }
+
+        /* عداد الانتصارات */
+        #winCounter {
+             margin-top: 10px;
+             font-size: 1.1rem;
+             color: #005fa3; /* لون أزرق لعداد الفوز */
+             font-weight: bold;
+             text-align: center;
+        }
+
+        /* --- Keyframes الخاصة باللعبة والأنيميشن --- */
+        @keyframes symbolAppear { /*...*/ }
+        @keyframes winnerPulse { /*...*/ }
+        @keyframes statusAnnounce { /*...*/ }
+        @keyframes modalFadeIn {
+             from { opacity: 0; }
+             to { opacity: 1; }
+        }
+        @keyframes modalSlideIn {
+            from { opacity: 0; transform: translateY(-50px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+
+        /* تعديلات الاستجابة */
+        @media (max-width: 900px) {
+            .heart-container { /*...*/ }
+        }
+        @media (max-width: 600px) {
+            .title { font-size: 2.5rem; }
+            .login-container { padding: 20px; }
+            .heart-container { display: none; }
+            .modal-content { margin: 15% auto; width: 95%; padding: 20px; }
+            #gameModal .cell { --cell-size: 70px; font-size: calc(var(--cell-size) * 0.6); }
+             #gameModal #board { width: fit-content; } /* إعادة التأكيد */
+            #gameModal h1 { font-size: 1.5rem; }
+            #gameModal #status-message { font-size: 1.1em; }
+            #gameModal #restart-button { padding: 8px 20px; font-size: 0.9em;}
+            #winCounter { font-size: 1rem; }
+        }
+         @media (max-width: 400px) {
+             #gameModal .cell { --cell-size: 60px; font-size: calc(var(--cell-size) * 0.6); }
+         }
+
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="logo">ChahroMatch.TV</div>
+    </div>
+
+    <div class="heart-container">
+        <div class="heart-glow"></div>
+        <div class="heart">
+            <div class="liquid"></div> <div class="liquid"></div> <div class="liquid"></div>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <h1 class="title">ChahroMatch.TV</h1>
+        <p class="subtitle"> أنشئ رمز VIP عبر إدخال الرمز السري أو الفوز في اللعبة 3 مرات!</p>
+        <div class="login-container">
+            <div class="code-container">
+                <div id="codeDisplay">الكود سيظهر هنا</div>
+                <button id="copyBtn" class="copy-btn" style="display: none;">
+                    <svg class="copy-icon" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z" fill="currentColor"/></svg>
+                    <span class="tooltip">نسخ الكود</span>
+                </button>
+            </div>
+            <button id="generateBtn" class="action-button login-btn">إنشاء كود قنوات VIP</button>
+            <button id="playGameBtn" class="action-button play-game-btn"> العب لتفعيل زر انشاء الكود قنولت vip</button>
+            <input type="password" id="secretInput" class="form-input" placeholder=" أدخل الرمز السري لتفعيل زر مباشرة (...)" maxlength="10" required>
+            <div id="errorMsg"></div>
+        </div>
+    </div>
+
+    <div id="copyNotification" style="display: none;">تم نسخ الكود بنجاح!</div>
+
+    <div id="gameModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal-btn">&times;</span>
+            <canvas id="confetti-canvas"></canvas> <h1>لعبة X O</h1>
+            <div id="status-message"></div>
+            <div id="winCounter">الانتصارات: 0 / 3</div> <div id="board"></div>
+            <button id="restart-button">التالي - جرب مرة اخرى</button>
+            </div>
+    </div>
+    <script>
+        // --- المتغيرات والعناصر الأساسية لواجهة VIP ---
+        const generateBtn = document.getElementById('generateBtn');
+        const secretInput = document.getElementById('secretInput');
+        const errorMsg = document.getElementById('errorMsg');
+        const codeDisplay = document.getElementById('codeDisplay');
+        const copyBtn = document.getElementById('copyBtn');
+        const copyNotification = document.getElementById('copyNotification');
+        const heart = document.querySelector('.heart'); // القلب للتأثيرات
+        const subtitleElement = document.querySelector('.subtitle');
+
+        // --- المتغيرات والعناصر الخاصة باللعبة ---
+        const playGameBtn = document.getElementById('playGameBtn');
+        const gameModal = document.getElementById('gameModal');
+        const closeModalBtn = gameModal.querySelector('.close-modal-btn');
+        const winCounterElement = gameModal.querySelector('#winCounter');
+        const gameBoardElement = gameModal.querySelector("#board"); // لوحة اللعبة داخل المودال
+        const gameStatusMessageElement = gameModal.querySelector("#status-message"); // رسالة الحالة داخل المودال
+        const gameRestartButton = gameModal.querySelector("#restart-button"); // زر إعادة اللعبة داخل المودال
+        const confettiCanvas = gameModal.querySelector('#confetti-canvas'); // Canvas داخل المودال
+
+        // --- حالة اللعبة وعداد الفوز ---
+        let humanWins = 0;
+        const WINS_REQUIRED = 3;
+        let game_gameActive = false; // استخدام بادئة لتجنب التعارض
+        let game_currentPlayer = "X"; // X هو الإنسان
+        let game_gameState = ["", "", "", "", "", "", "", "", ""];
+        const GAME_HUMAN_PLAYER = "X";
+        const GAME_BOT_PLAYER = "O";
+        const game_winPatterns = [
+            [0, 1, 2], [3, 4, 5], [6, 7, 8], [0, 3, 6], [1, 4, 7], [2, 5, 8], [0, 4, 8], [2, 4, 6]
+        ];
+
+        // --- إعداد Confetti (يجب أن يكون بعد تعريف Canvas) ---
+        let game_myConfetti; // سيتم تهيئته عند فتح المودال لأول مرة
+
+        // --- دوال واجهة VIP ---
+        generateBtn.addEventListener('click', function() {
+            const secret = secretInput.value;
+            errorMsg.textContent = ''; // مسح رسالة الخطأ القديمة
+
+            // التحقق من الشرط: الرمز السري الصحيح أو تحقيق عدد الانتصارات المطلوب
+            if (secret === '123' || humanWins >= WINS_REQUIRED) {
+                // --- نفس منطق إنشاء الكود الأصلي ---
+                heart.style.animation = 'heartBeat 0.5s ease-in-out 3, heartRotate 15s linear infinite';
+                setTimeout(() => { heart.style.animation = 'heartBeat 2s ease-in-out infinite, heartRotate 15s linear infinite'; }, 1500);
+                this.classList.add('btn-clicked');
+                setTimeout(() => { this.classList.remove('btn-clicked'); }, 300);
+                codeDisplay.innerHTML = '<span style="opacity: 0.7">جاري إنشاء الكود...</span>';
+                copyBtn.style.display = 'none';
+
+                setTimeout(() => {
+                    let code = '';
+                    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+                    for (let i = 0; i < 16; i++) { code += chars.charAt(Math.floor(Math.random() * chars.length)); }
+
+                    codeDisplay.style.opacity = '0';
+                    setTimeout(() => {
+                        codeDisplay.textContent = code;
+                        codeDisplay.style.opacity = '1';
+                        codeDisplay.style.boxShadow = '0 0 10px rgba(255, 255, 255, 0.5)';
+                        copyBtn.style.display = 'flex';
+                        copyBtn.style.opacity = '0';
+                        setTimeout(() => {
+                            copyBtn.style.opacity = '1';
+                            codeDisplay.style.boxShadow = 'inset 0 2px 5px rgba(0, 0, 0, 0.1)';
+                        }, 300);
+                    }, 300);
+                }, 800);
+                 // --- نهاية منطق إنشاء الكود ---
+            } else {
+                // --- نفس منطق رسالة الخطأ الأصلي ---
+                errorMsg.style.opacity = '0';
+                copyBtn.style.display = 'none';
+                setTimeout(() => {
+                    errorMsg.textContent = 'الرمز السري غير صحيح أو لم تحقق الانتصارات المطلوبة!';
+                    errorMsg.style.opacity = '1';
+                    // تأثير اهتزاز حقل الإدخال
+                    secretInput.style.transform = 'translateX(10px)';
+                    setTimeout(() => { secretInput.style.transform = 'translateX(-10px)';
+                        setTimeout(() => { secretInput.style.transform = 'translateX(5px)';
+                            setTimeout(() => { secretInput.style.transform = 'translateX(-5px)';
+                                setTimeout(() => { secretInput.style.transform = 'translateX(0)'; }, 50);
+                            }, 50);
+                        }, 50);
+                    }, 50);
+                }, 200);
+                 // --- نهاية منطق رسالة الخطأ ---
+            }
+        });
+
+        copyBtn.addEventListener('click', function() {
+            const codeText = codeDisplay.textContent;
+            if (codeText && codeText !== 'الكود سيظهر هنا' && !codeText.includes('جاري إنشاء')) {
+                navigator.clipboard.writeText(codeText).then(() => {
+                    this.style.backgroundColor = '#0a6e2c';
+                    setTimeout(() => { this.style.backgroundColor = 'rgba(17, 134, 58, 0.8)'; }, 300);
+                    heart.style.animation = 'heartBeat 0.3s ease-in-out 2, heartRotate 15s linear infinite';
+                    setTimeout(() => { heart.style.animation = 'heartBeat 2s ease-in-out infinite, heartRotate 15s linear infinite'; }, 600);
+
+                    notification.style.display = 'block';
+                    setTimeout(() => {
+                        notification.classList.add('show');
+                        setTimeout(() => {
+                            notification.classList.remove('show');
+                            setTimeout(() => { notification.style.display = 'none'; }, 400);
+                        }, 2000);
+                    }, 10);
+                });
+            }
+        });
+
+        // --- دوال التحكم في نافذة اللعبة (Modal) ---
+        playGameBtn.addEventListener('click', () => {
+            gameModal.style.display = 'flex'; // إظهار النافذة
+             // تهيئة Confetti عند أول فتح للمودال فقط
+             if (!game_myConfetti) {
+                 game_myConfetti = confetti.create(confettiCanvas, { resize: true, useWorker: true });
+             }
+            game_startGame(); // بدء لعبة جديدة عند فتح النافذة
+        });
+
+        closeModalBtn.addEventListener('click', () => {
+            gameModal.style.display = 'none'; // إخفاء النافذة
+        });
+
+        // إغلاق النافذة عند النقر خارج محتواها
+        window.addEventListener('click', (event) => {
+            if (event.target == gameModal) {
+                gameModal.style.display = 'none';
+            }
+        });
+
+        // --- منطق لعبة X O (مُعدّل للعمل داخل المودال) ---
+
+        // 1. إنشاء لوحة اللعبة
+        function game_createBoard() {
+            gameBoardElement.innerHTML = "";
+            gameBoardElement.style.opacity = '0'; // لإعادة تطبيق الأنيميشن إذا أردنا
+            setTimeout(() => { gameBoardElement.style.opacity = '1'; }, 50); // تأخير بسيط للظهور
+
+            game_gameState.forEach((_, index) => {
+                const cellElement = document.createElement("div");
+                cellElement.classList.add("cell"); // استخدام فئة .cell المعرفة داخل #gameModal
+                cellElement.dataset.index = index;
+                // لا يوجد تأخير أنيميشن فردي هنا، الاعتماد على ظهور المودال
+                cellElement.addEventListener("click", game_handleCellClick);
+                gameBoardElement.appendChild(cellElement);
+            });
+        }
+
+        // 2. التعامل مع نقرة اللاعب
+        function game_handleCellClick(event) {
+            const clickedCellIndex = parseInt(event.target.dataset.index);
+            if (!game_gameActive || game_gameState[clickedCellIndex] !== "" || game_currentPlayer !== GAME_HUMAN_PLAYER) {
+                return;
+            }
+            game_playMove(clickedCellIndex, GAME_HUMAN_PLAYER);
+            if (game_checkWinner()) return;
+            game_currentPlayer = GAME_BOT_PLAYER;
+            game_updateStatus();
+            setTimeout(game_botMove, 400);
+        }
+
+        // 3. تنفيذ حركة
+        function game_playMove(index, player) {
+            if (game_gameActive && game_gameState[index] === "") {
+                game_gameState[index] = player;
+                const cellElement = gameBoardElement.querySelector(`.cell[data-index='${index}']`);
+                const symbolClass = player === GAME_HUMAN_PLAYER ? 'symbol-x' : 'symbol-o';
+                cellElement.innerHTML = `<span class="${symbolClass}">${player}</span>`;
+                cellElement.removeEventListener('click', game_handleCellClick);
+                cellElement.style.cursor = 'default';
+            }
+        }
+
+        // 4. حركة البوت (عشوائية)
+        function game_botMove() {
+            if (!game_gameActive) return;
+            const availableSpots = [];
+            game_gameState.forEach((cell, index) => { if (cell === "") availableSpots.push(index); });
+            if (availableSpots.length > 0) {
+                const randomIndex = Math.floor(Math.random() * availableSpots.length);
+                const chosenIndex = availableSpots[randomIndex];
+                game_playMove(chosenIndex, GAME_BOT_PLAYER);
+                if (game_checkWinner()) return;
+            }
+            game_currentPlayer = GAME_HUMAN_PLAYER;
+            game_updateStatus();
+        }
+
+        // 5. التحقق من الفائز أو التعادل + تحديث عداد الفوز
+        function game_checkWinner() {
+            let roundWon = false;
+            let winner = null;
+            let winningPattern = [];
+            for (let pattern of game_winPatterns) {
+                const [a, b, c] = pattern;
+                if (game_gameState[a] && game_gameState[a] === game_gameState[b] && game_gameState[a] === game_gameState[c]) {
+                    roundWon = true;
+                    winner = game_gameState[a];
+                    winningPattern = pattern;
+                    break;
+                }
+            }
+
+            gameStatusMessageElement.classList.remove('announce', 'tie', 'lose');
+
+            if (roundWon) {
+                game_gameActive = false;
+                let message = "";
+                let messageClass = 'announce';
+
+                if (winner === GAME_HUMAN_PLAYER) {
+                    message = "🎉 لقد فزت! 🎉";
+                    humanWins++; // --- زيادة عداد الفوز ---
+                    winCounterElement.textContent = `الانتصارات: ${humanWins} / ${WINS_REQUIRED}`; // تحديث العداد
+                    game_triggerConfetti(); // تفعيل الاحتفال
+
+                    // التحقق إذا تم تحقيق الشرط
+                    if (humanWins >= WINS_REQUIRED) {
+                         subtitleElement.textContent = "تهانينا! يمكنك الآن إنشاء الكود بدون الرمز السري.";
+                         secretInput.placeholder = "الشرط تحقق!";
+                         secretInput.disabled = true; // تعطيل حقل الإدخال
+                         // يمكنك إضافة تأثيرات إضافية هنا عند تحقيق الشرط
+                          playGameBtn.textContent = "الشرط تحقق! 🎉";
+                          playGameBtn.disabled = true; // تعطيل زر اللعب
+                          // ربما إغلاق المودال تلقائيًا بعد فترة قصيرة
+                          setTimeout(() => { gameModal.style.display = 'none'; }, 2500);
+                    }
+
+                } else {
+                    message = "💻 الكمبيوتر فاز! 💻";
+                    messageClass += ' lose';
+                }
+                gameStatusMessageElement.textContent = message;
+                gameStatusMessageElement.classList.add(messageClass);
+                winningPattern.forEach(index => { gameBoardElement.querySelector(`.cell[data-index='${index}']`).classList.add('winner'); });
+                game_disableBoardClicks();
+                return true;
+            }
+
+            if (!game_gameState.includes("")) {
+                game_gameActive = false;
+                gameStatusMessageElement.textContent = "🤝 تعادل! 🤝";
+                gameStatusMessageElement.classList.add('announce', 'tie');
+                game_disableBoardClicks();
+                return true;
+            }
+            return false;
+        }
+
+        // 6. تعطيل النقر بعد نهاية اللعبة
+        function game_disableBoardClicks() {
+            const cells = gameBoardElement.querySelectorAll('.cell');
+            cells.forEach(cell => {
+                 if (!game_gameState[parseInt(cell.dataset.index)]) {
+                     cell.removeEventListener('click', game_handleCellClick);
+                     cell.style.cursor = 'default';
+                 }
+             });
+         }
+
+        // 7. تحديث رسالة الحالة
+        function game_updateStatus() {
+            if (game_gameActive) {
+                gameStatusMessageElement.textContent = `دور: ${game_currentPlayer === GAME_HUMAN_PLAYER ? 'أنت (X)' : 'الكمبيوتر (O)'}`;
+                gameStatusMessageElement.classList.remove('announce', 'tie', 'lose');
+            }
+        }
+
+        // 8. بدء/إعادة بدء اللعبة
+        function game_startGame() {
+            game_gameActive = true;
+            game_currentPlayer = GAME_HUMAN_PLAYER;
+            game_gameState = ["", "", "", "", "", "", "", "", ""];
+            gameStatusMessageElement.classList.remove('announce', 'tie', 'lose');
+            game_createBoard();
+            game_updateStatus();
+             // التأكد من أن العداد يظهر القيمة الحالية عند بدء لعبة جديدة
+             winCounterElement.textContent = `الانتصارات: ${humanWins} / ${WINS_REQUIRED}`;
+        }
+
+        // 9. دالة تفعيل Confetti (تستخدم المتغير المهيأ)
+        function game_triggerConfetti() {
+             if (game_myConfetti) { // التأكد من أن Confetti مهيأ
+                 game_myConfetti({ particleCount: 150, spread: 90, origin: { y: 0.6 } });
+                 setTimeout(() => {
+                      game_myConfetti({ particleCount: 100, angle: 60, spread: 70, origin: { x: 0 } });
+                      game_myConfetti({ particleCount: 100, angle: 120, spread: 70, origin: { x: 1 } });
+                 }, 250);
+             }
+        }
+
+        // ربط زر إعادة اللعبة داخل المودال
+        gameRestartButton.addEventListener("click", game_startGame);
+
+        // --- التأثيرات الإضافية لواجهة VIP (عند التحميل والتركيز) ---
+        document.addEventListener('DOMContentLoaded', function() {
+            document.body.style.opacity = '0';
+            setTimeout(() => { document.body.style.opacity = '1'; }, 300);
+        });
+        secretInput.addEventListener('focus', function() { this.style.transform = 'translateY(-2px)'; });
+        secretInput.addEventListener('blur', function() { this.style.transform = 'translateY(0)'; });
+
+    </script>
+</body>
+</html>
